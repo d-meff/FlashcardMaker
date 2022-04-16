@@ -64,7 +64,7 @@ class EditDeck:
         self.master.minsize(600, 500)
         self.master.maxsize(600, 500)
 
-        self.tableNameLabel = Label(master, text="Enter Table:")
+        self.tableNameLabel = Label(master, text="Deck Name:")
         self.tableNameLabel.place(x=170, y=55)
 
         self.tableNameEntry = Entry(master, width=40)
@@ -94,7 +94,7 @@ class EditDeck:
         self.dropTableEntry = Entry(master, width=40)
         self.dropTableEntry.place(x=245, y=260)
 
-        self.dropTableLabel = Label(master, text="Table to delete:")
+        self.dropTableLabel = Label(master, text="Deck to delete:")
         self.dropTableLabel.place(x=150, y=260)
 
         self.deleteDeckButton = Button(master, text="Delete Deck", command=self.delete_deck, background="yellow")
@@ -102,6 +102,12 @@ class EditDeck:
 
         self.deckDeletedLabel = Label(master)
         self.deckDeletedLabel.place(x=280, y=330)
+
+        self.tableNotExistLabel = Label(master)
+        self.tableNotExistLabel.place(x=320, y=180)
+
+        self.cardAddedLabel = Label(master)
+        self.cardAddedLabel.place(x=320, y=195)
 
     def back_to_menu(self):
         self.tableNameEntry.destroy()
@@ -117,37 +123,50 @@ class EditDeck:
         self.dropTableLabel.destroy()
         self.deleteDeckButton.destroy()
         self.deckDeletedLabel.destroy()
+        self.tableNotExistLabel.destroy()
+        self.cardAddedLabel.destroy()
 
         self.mainMenuNav = MainWin(root)
     
     def insert_card(self):
-        table_name = self.tableNameEntry.get()
+        try:
+            self.tableNotExistLabel["text"] = ""
+            table_name = self.tableNameEntry.get()
 
-        c.execute(f"""SELECT * FROM {table_name}""")
-        grabbing = c.fetchall()
+            c.execute(f"""SELECT * FROM {table_name}""")
+            grabbing = c.fetchall()
 
-        id_num = 0
+            id_num = 0
 
-        for row in grabbing:
-            id_num += 1
+            for row in grabbing:
+                id_num += 1
 
-        x = f'''{table_name + '_' + str(id_num)}'''
-        y = self.questionEntry.get()
-        z = self.answerEntry.get()
+            x = f'''{table_name + '_' + str(id_num)}'''
+            y = self.questionEntry.get()
+            z = self.answerEntry.get()
 
-        c.execute(f"""INSERT INTO {table_name.lower()} VALUES("{x}", "{y}", "{z}")""")
+            c.execute(f"""INSERT INTO {table_name.lower()} VALUES("{x}", "{y}", "{z}")""")
 
-        self.questionEntry.delete(0, END)
-        self.answerEntry.delete(0, END)
-        conn.commit()
+            self.questionEntry.delete(0, END)
+            self.answerEntry.delete(0, END)
+            conn.commit()
+
+            self.cardAddedLabel["text"] = f'Card added to {table_name}!'
+
+        except:
+            self.tableNotExistLabel["text"] = f'Deck {table_name} does not exist.'
+            self.cardAddedLabel["text"] = ""
     
     def delete_deck(self):
         table_name = self.dropTableEntry.get()
+        try:
+            c.execute(f"""SELECT * FROM {table_name}""")
+            c.execute(f"""DROP TABLE IF EXISTS {table_name}""")
+            conn.commit()
 
-        c.execute(f"""DROP TABLE IF EXISTS {table_name}""")
-        conn.commit()
-
-        self.deckDeletedLabel["text"] = f'Deck {table_name} has been deleted!'
+            self.deckDeletedLabel["text"] = f'Deck {table_name} has been deleted!'
+        except:
+            self.deckDeletedLabel["text"] = f'Deck {table_name} does not exist.'
 
 
 # Viewing Window
@@ -283,7 +302,7 @@ class ViewDeckWin:
             self.tableDoesntExistLabel["text"] = ""
 
         except:
-            self.tableDoesntExistLabel["text"] = f"Table '{table_name}' does not exist, please reload a valid table"
+            self.tableDoesntExistLabel["text"] = f"Deck '{table_name}' does not exist, please reload a valid deck"
             self.loadNextQuestionButton["state"] = DISABLED
             self.resetDeckButton["state"] = DISABLED
             self.loadPrevQuestion["state"] = DISABLED
@@ -405,7 +424,7 @@ class ViewDeckWin:
 
             self.exportedDeckLabel["text"] = f'{table_name}.csv has been created! (or updated)'
         except:
-            self.exportedDeckLabel["text"] = "Error creating table. (Table probably doesn't exist)"
+            self.exportedDeckLabel["text"] = "Error creating deck CSV. (Deck probably doesn't exist)"
         
 
 
@@ -443,9 +462,9 @@ class CreateDeck:
         deck_title = self.deckName.get()
         try:
             c.execute(f'''CREATE TABLE IF NOT EXISTS {deck_title.lower()} (deck_name text, question text, answer text)''')
-            self.deckCreatedLabel["text"] = f'Table named {deck_title} created! (or already exists)'
+            self.deckCreatedLabel["text"] = f'Deck named {deck_title} created! (or already exists)'
         except:
-            self.deckCreatedLabel["text"] = "This table has already been created" # doesn't matter lol
+            self.deckCreatedLabel["text"] = "This deck has already been created" # try will run regardless
 
         self.deckName.delete(0, END)
         conn.commit()
