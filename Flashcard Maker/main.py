@@ -1,7 +1,6 @@
 import tkinter
 from tkinter import *
 import sqlite3
-from sqlite3 import *
 import random
 from random import randint
 import csv
@@ -107,7 +106,7 @@ class EditDeck:
         self.tableNotExistLabel.place(x=320, y=180)
 
         self.cardAddedLabel = Label(master)
-        self.cardAddedLabel.place(x=320, y=195)
+        self.cardAddedLabel.place(x=280, y=195)
 
     def back_to_menu(self):
         self.tableNameEntry.destroy()
@@ -129,34 +128,37 @@ class EditDeck:
         self.mainMenuNav = MainWin(root)
     
     def insert_card(self):
-        try:
-            self.tableNotExistLabel["text"] = ""
-            table_name = self.tableNameEntry.get()
+        if len(self.questionEntry.get()) == 0 or len(self.answerEntry.get()) == 0:
+            self.cardAddedLabel["text"] = "Question and Answer values cannot be blank"
+        else:
+            try:
+                self.tableNotExistLabel["text"] = ""
+                table_name = self.tableNameEntry.get()
 
-            c.execute(f"""SELECT * FROM {table_name}""")
-            grabbing = c.fetchall()
+                c.execute(f"""SELECT * FROM {table_name}""")
+                grabbing = c.fetchall()
 
-            id_num = 0
+                id_num = 0
 
-            for row in grabbing:
-                id_num += 1
+                for row in grabbing:
+                    id_num += 1
 
-            x = f'''{table_name + '_' + str(id_num)}'''
-            y = self.questionEntry.get()
-            z = self.answerEntry.get()
+                x = f'''{table_name + '_' + str(id_num)}'''
+                y = self.questionEntry.get()
+                z = self.answerEntry.get()
 
-            c.execute(f"""INSERT INTO {table_name.lower()} VALUES("{x}", "{y}", "{z}")""")
+                c.execute(f"""INSERT INTO {table_name.lower()} VALUES("{x}", "{y}", "{z}")""")
 
-            self.questionEntry.delete(0, END)
-            self.answerEntry.delete(0, END)
-            conn.commit()
+                self.questionEntry.delete(0, END)
+                self.answerEntry.delete(0, END)
+                conn.commit()
 
-            self.cardAddedLabel["text"] = f'Card added to {table_name}!'
+                self.cardAddedLabel["text"] = f'Card added to {table_name}!'
 
-        except:
-            self.tableNotExistLabel["text"] = f'Deck {table_name} does not exist.'
-            self.cardAddedLabel["text"] = ""
-    
+            except:
+                self.tableNotExistLabel["text"] = f'Deck {table_name} does not exist.'
+                self.cardAddedLabel["text"] = ""
+        
     def delete_deck(self):
         table_name = self.dropTableEntry.get()
         try:
@@ -460,11 +462,11 @@ class CreateDeck:
 
     def create_the_table(self):
         deck_title = self.deckName.get()
-        try:
+        if len(deck_title.split()) > 1:
+            self.deckCreatedLabel["text"] = "Invalid Deck Name. No spaces allowed."
+        else:
             c.execute(f'''CREATE TABLE IF NOT EXISTS {deck_title.lower()} (deck_name text, question text, answer text)''')
             self.deckCreatedLabel["text"] = f'Deck named {deck_title} created! (or already exists)'
-        except:
-            self.deckCreatedLabel["text"] = "This deck has already been created" # try will run regardless
 
         self.deckName.delete(0, END)
         conn.commit()
