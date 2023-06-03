@@ -24,3 +24,9 @@ This project allows the user to create flashcard decks, view/add to decks, and e
   - Load a table, cycle through flash cards using "Next Question", "Previous Question", and "Random Question" buttons. <br>
   - Export the table to a CSV file (or updating it based on if the .csv is already created). <br>
   - A deck counter will be shown to track your navigation through the deck. <br>
+  
+<h5> Testing Game </h5>
+  - Load a previously created deck and press "Load Table"
+  - A random question from the deck will be drawn
+  - You will be presented with four possible answers, one being correct
+  - Pick an answer, then press the "New Question" button to continue playing
