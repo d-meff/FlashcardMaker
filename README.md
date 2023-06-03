@@ -26,7 +26,7 @@ This project allows the user to create flashcard decks, view/add to decks, and e
   - A deck counter will be shown to track your navigation through the deck. <br>
   
 <h5> Testing Game </h5>
-  - Load a previously created deck and press "Load Table"
-  - A random question from the deck will be drawn
-  - You will be presented with four possible answers, one being correct
+  - Load a previously created deck and press "Load Table" <br>
+  - A random question from the deck will be drawn <br>
+  - You will be presented with four possible answers, one being correct <br>
   - Pick an answer, then press the "New Question" button to continue playing
