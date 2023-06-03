@@ -11,7 +11,7 @@ This project allows the user to create flashcard decks, view/add to decks, and e
 <h1> Documentation </h1>
   
   How to use:
-  - There are three sections to this application: Creating, Editing, and Viewing. <br>
+  - There are four sections to this application: Creating, Editing, Viewing, and a Multiple Choice Question game. <br>
   - Note: SQLite should automatically create the database to store tables/decks for you in the project folder.
   
 <h5> Creating View </h5>
