@@ -16,6 +16,7 @@ This project allows the user to create flashcard decks, view/add to decks, and e
   
 <h5> Creating View </h5>
   - You can initialize a deck and view which decks have already been created.
+  - You can upload a .csv file as a deck (follow prompts)
   
 <h5>Editing View </h5>
   - Add cards to existing decks, Delete unwanted decks.
