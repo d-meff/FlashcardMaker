@@ -7,6 +7,7 @@ This project allows the user to create flashcard decks, view/add to decks, and e
   <li> Tkinter Module </li>
   <li> SQLite3 </li>
   <li> Other modules such as "Random" and "CSV" </li>
+ </ul>
   
 <h1> Documentation </h1>
   
