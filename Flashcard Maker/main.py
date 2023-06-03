@@ -452,15 +452,15 @@ class TestGame:
         self.tableQuestionText = Label(master)
         self.tableQuestionText.place(x=150, y=150)
 
-        self.answerChoiceButtonOne = Button(master, text="1", command=self.one_clicked, padx=10, pady=10)
-        self.answerChoiceButtonTwo = Button(master, text="2", command=self.two_clicked, padx=10, pady=10)
-        self.answerChoiceButtonThree = Button(master, text="3", command=self.three_clicked, padx=10, pady=10)
-        self.answerChoiceButtonFour = Button(master, text="4", command=self.four_clicked, padx=10, pady=10)
+        self.answerChoiceButtonOne = Button(master, text="1", command=self.one_clicked, padx=10, pady=10, wraplength=240)
+        self.answerChoiceButtonTwo = Button(master, text="2", command=self.two_clicked, padx=10, pady=10, wraplength=240)
+        self.answerChoiceButtonThree = Button(master, text="3", command=self.three_clicked, padx=10, pady=10, wraplength=240)
+        self.answerChoiceButtonFour = Button(master, text="4", command=self.four_clicked, padx=10, pady=10, wraplength=240)
 
-        self.answerChoiceButtonOne.place(x=100, y=205)
-        self.answerChoiceButtonTwo.place(x=100, y=305)
-        self.answerChoiceButtonThree.place(x=350, y=205)
-        self.answerChoiceButtonFour.place(x=350, y=305)
+        self.answerChoiceButtonOne.place(x=35, y=205)
+        self.answerChoiceButtonTwo.place(x=35, y=305)
+        self.answerChoiceButtonThree.place(x=300, y=205)
+        self.answerChoiceButtonFour.place(x=300, y=305)
 
         self.loadTableButton = Button(master, text="Load Table", command=self.load_table_questions, background="pink")
         self.loadTableButton.place(x=280, y=75)
@@ -675,6 +675,9 @@ class CreateDeck:
         self.seeTableNamesLabel = Label(master, text="", wraplength=150)
         self.seeTableNamesLabel.place(x=245, y=250)
 
+        self.uploadDeckFromCSVButton = Button(master, text="Create deck from CSV", background="light blue", command=self.go_to_upload_csv)
+        self.uploadDeckFromCSVButton.place(x=10,y=180)
+
     def create_the_table(self):
         deck_title = self.deckName.get()
         if len(deck_title.split()) > 1:
@@ -694,8 +697,21 @@ class CreateDeck:
         self.deckCreatedLabel.destroy()
         self.seeTablesButton.destroy()
         self.seeTableNamesLabel.destroy()
+        self.uploadDeckFromCSVButton.destroy()
 
         self.mainMenuNav = MainWin(root)
+
+    def go_to_upload_csv(self):
+        self.backButton.destroy()
+        self.deckName.destroy()
+        self.deckNameLabel.destroy()
+        self.createNewDeck.destroy()
+        self.deckCreatedLabel.destroy()
+        self.seeTablesButton.destroy()
+        self.seeTableNamesLabel.destroy()
+        self.uploadDeckFromCSVButton.destroy()
+
+        self.mainMenuNav = UploadFromCSVWin(root)
 
     def see_deck_names(self):
         table_names = []
@@ -712,6 +728,71 @@ class CreateDeck:
             table_names_cleaned.append(",")
 
         self.seeTableNamesLabel["text"] = table_names_cleaned[:len(table_names_cleaned) - 1]
+
+class UploadFromCSVWin:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Create a deck from CSV!")
+        self.master.geometry("600x500")
+        self.master.minsize(600, 500)
+        self.master.maxsize(600, 500)
+
+        self.csvFileNameLabel = Label(master, text="CSV File name (exclude '.csv'): ")
+        self.csvFileNameLabel.place(x=110, y=100)
+
+        self.csvFileNameEntry = Entry(master)
+        self.csvFileNameEntry.place(x=300, y=100)
+
+        self.csvUploadFile = Button(master, text="Upload CSV", command=self.upload_deck, background="light blue")
+        self.csvUploadFile.place(x=245, y=140)
+
+        self.backButton = Button(master, text="Back to Main Menu", command=self.back_to_menu, background="light blue")
+        self.backButton.place(x=10, y=10)
+
+        self.confirmationLabel = Label(master, text="")
+        self.confirmationLabel.place(x=215, y=190)
+
+        self.deckCreatedLabel = Label(master, text="")
+        self.deckCreatedLabel.place(x=215, y=210)
+
+    def upload_deck(self):
+        try:
+            deck_title = self.csvFileNameEntry.get()
+            file = open(f'{deck_title}.csv', 'r', newline='')
+            reader = csv.reader(file)
+
+            self.confirmationLabel["text"] = f'{deck_title} has been uploaded!' 
+            if len(deck_title.split()) > 1:
+                self.deckCreatedLabel["text"] = "Invalid Deck Name. No spaces allowed."
+            else:
+                c.execute(f'''CREATE TABLE IF NOT EXISTS {deck_title.lower()} (deck_name text, question text, answer text)''')
+                self.deckCreatedLabel["text"] = f'Deck named {deck_title} created! (or already exists)'
+
+            count = 1
+            for row in reader:
+                c.execute(f"""INSERT INTO {deck_title.lower()} VALUES("{deck_title + '_' + str(count)}", "{row[0]}", "{row[1]}")""")
+                count += 1
+        
+            file.close()
+        except:
+            self.confirmationLabel["text"] = f'{deck_title}.csv does not exist, please enter the csv file name (exclude ".csv")'
+            raise Exception
+
+        self.csvFileNameEntry.delete(0, END)
+        
+        conn.commit()
+
+    def back_to_menu(self):
+        self.deckCreatedLabel.destroy()
+        self.backButton.destroy()
+        self.confirmationLabel.destroy()
+        self.csvFileNameEntry.destroy()
+        self.csvFileNameLabel.destroy()
+        self.csvUploadFile.destroy()
+
+        self.mainMenuNav = MainWin(root)
+
+
     
 
 root = Tk()
